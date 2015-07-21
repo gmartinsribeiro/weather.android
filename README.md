@@ -1,2 +1,2 @@
-# weather.android
-Weather android app
+# Weather Android App
+Sample application developer for Android OS mobile phones
