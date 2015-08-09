@@ -161,7 +161,8 @@ public class TodayFragment extends Fragment implements Locator.Listener{
     private void populateView(WeatherItem weather) {
         city.setText(weather.getName());
         if(weather.getWeather() != null && weather.getWeather().get(0) != null){
-            Picasso.with(getActivity()).load(Constants.API_URL_IMAGES + weather.getWeather().get(0).getIcon() + Constants.IMAGE_EXTENSION).into(weatherIcon);
+            Picasso.with(getActivity()).load(Constants.API_URL_IMAGES + weather.getWeather().get(0).getIcon() + Constants.IMAGE_EXTENSION).resize(150, 150)
+                    .centerInside().into(weatherIcon);
             weatherDescription.setText(weather.getWeather().get(0).getDescription().substring(0, 1).toUpperCase() +  weather.getWeather().get(0).getDescription().substring(1));
 
         }
@@ -188,7 +189,7 @@ public class TodayFragment extends Fragment implements Locator.Listener{
             humidity.setText(weather.getMain().getHumidity() + Constants.HUMIDITY);
             pressure.setText(weather.getMain().getPressure() + Constants.PRESSURE);
         }
-        if(weather.getRain() != null){
+        if(weather.getRain() != null && weather.getRain().get3h() != null){
             precipitation.setText(weather.getRain().get3h() + Constants.PRECIPITATION);
         }else{
             precipitation.setText("0" + Constants.PRECIPITATION);
