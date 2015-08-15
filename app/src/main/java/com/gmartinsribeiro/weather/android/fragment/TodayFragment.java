@@ -141,12 +141,11 @@ public class TodayFragment extends Fragment implements Locator.Listener{
         //Get user preferences for metrics
         String units = SharedPreferencesUtils.getSavedUnits(getActivity(), getString(R.string.title_temperature), Constants.DEFAULT_SETTINGS_LENGTH);
 
-        //Now ,we need to call for response
         //Retrofit using gson for JSON-POJO conversion
         controller.getTodayWeather(location.getLatitude(), location.getLongitude(), units, new Callback<WeatherItem>() {
             @Override
             public void success(WeatherItem weather, Response response) {
-                //we get json object from github server to our POJO or model class
+
                 populateView(weather);
             }
 
@@ -195,8 +194,12 @@ public class TodayFragment extends Fragment implements Locator.Listener{
             precipitation.setText("0" + Constants.PRECIPITATION);
         }
         if(weather.getWind() != null){
-            wind.setText(weather.getWind().getSpeed() + Constants.WIND);
-            direction.setText(WeatherUtils.getRoseByDegree(weather.getWind().getDeg()).toString());
+            if(weather.getWind().getSpeed() != null){
+                wind.setText(weather.getWind().getSpeed() + Constants.WIND);
+            }
+            if(weather.getWind().getDeg() != null){
+                direction.setText(WeatherUtils.getRoseByDegree(weather.getWind().getDeg()).toString());
+            }
         }
     }
 

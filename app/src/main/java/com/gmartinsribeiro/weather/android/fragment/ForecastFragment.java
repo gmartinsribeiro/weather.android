@@ -4,10 +4,11 @@ import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import com.gmartinsribeiro.weather.android.R;
 import com.gmartinsribeiro.weather.android.adapter.ForecastAdapter;
@@ -41,7 +42,7 @@ public class ForecastFragment extends Fragment implements Locator.Listener{
     private static final String TAG = "ForecastFragment";
 
     private OnFragmentInteractionListener mListener;
-    private ListView mForecastList;
+    private RecyclerView mForecastList;
     /**
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
@@ -71,7 +72,7 @@ public class ForecastFragment extends Fragment implements Locator.Listener{
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_forecast, container, false);
 
-        mForecastList = (ListView) v.findViewById(R.id.forecastList);
+        mForecastList = (RecyclerView) v.findViewById(R.id.forecastList);
 
         //Check connection and get location
         if(Connectivity.isConnected(getActivity())){
@@ -118,16 +119,24 @@ public class ForecastFragment extends Fragment implements Locator.Listener{
         //Get user preferences for metrics
         String units = SharedPreferencesUtils.getSavedUnits(getActivity(), getString(R.string.title_temperature), Constants.DEFAULT_SETTINGS_LENGTH);
 
-        //Now ,we need to call for response
         //Retrofit using gson for JSON-POJO conversion
         controller.getForecast(location.getLatitude(), location.getLongitude(), Constants.FORECAST_NUMBER_DAYS, units, new Callback<ForecastItem>() {
             @Override
             public void success(ForecastItem forecast, Response response) {
 
-                mAdapter = new ForecastAdapter(getActivity(),
-                        R.layout.forecast_list_item, forecast.getList());
+                mAdapter = new ForecastAdapter(getActivity(), forecast.getList());
 
                 mForecastList.setAdapter(mAdapter);
+
+                // Setup layout manager for items
+                LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+                layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                layoutManager.scrollToPosition(0);
+
+                // Attach layout manager to the RecyclerView
+                mForecastList.setLayoutManager(layoutManager);
+
+                mForecastList.setHasFixedSize(true);
             }
 
             @Override
