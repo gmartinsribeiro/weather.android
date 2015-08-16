@@ -1,11 +1,13 @@
 package com.gmartinsribeiro.weather.android.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import com.gmartinsribeiro.weather.android.controller.WeatherAPI;
 import com.gmartinsribeiro.weather.android.entity.ForecastItem;
 import com.gmartinsribeiro.weather.android.utility.Connectivity;
 import com.gmartinsribeiro.weather.android.utility.Constants;
+import com.gmartinsribeiro.weather.android.utility.DialogUtils;
 import com.gmartinsribeiro.weather.android.utility.Locator;
 import com.gmartinsribeiro.weather.android.utility.SharedPreferencesUtils;
 
@@ -73,14 +76,6 @@ public class ForecastFragment extends Fragment implements Locator.Listener{
         View v = inflater.inflate(R.layout.fragment_forecast, container, false);
 
         mForecastList = (RecyclerView) v.findViewById(R.id.forecastList);
-
-        //Check connection and get location
-        if(Connectivity.isConnected(getActivity())){
-            getCurrentLocation();
-        }else{
-            //TODO
-            //Show error
-        }
 
         return v;
     }
@@ -141,8 +136,7 @@ public class ForecastFragment extends Fragment implements Locator.Listener{
 
             @Override
             public void failure(RetrofitError error) {
-                //TODO
-                //Show error
+                Log.e(TAG, error.getMessage());
             }
         });
     }
@@ -154,12 +148,9 @@ public class ForecastFragment extends Fragment implements Locator.Listener{
 
     @Override
     public void onLocationNotFound() {
-        //TODO
-        //Show error or default location (Prague?)
-        Location l = new Location(Constants.DEFAULT_LOCATION_PROVIDER);
-        l.setLatitude(Constants.DEFAULT_LOCATION_LATITUDE);
-        l.setLongitude(Constants.DEFAULT_LOCATION_LONGITUDE);
-        getForecast(l);
+        Log.e(TAG, "No location found.");
+        //TODO Show last known location
+        //Show error or default location
     }
 
     /**
@@ -177,4 +168,19 @@ public class ForecastFragment extends Fragment implements Locator.Listener{
         public void onFragmentInteraction(String id);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        //Check connection and get location
+        if (!Connectivity.isConnected(getActivity())) {
+            DialogUtils.createNetErrorDialog(getActivity());
+        } else {
+            Locator l = new Locator(getActivity());
+            if (!l.hasGpsEnabled()) {
+                DialogUtils.createGpsErrorDialog(getActivity());
+            } else {
+                getCurrentLocation();
+            }
+        }
+    }
 }

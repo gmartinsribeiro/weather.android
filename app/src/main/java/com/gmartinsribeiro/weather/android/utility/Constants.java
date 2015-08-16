@@ -16,10 +16,6 @@ public class Constants {
     public static final String MY_PREFS_NAME = "STRVWeather";
     public static final int FORECAST_NUMBER_DAYS = 10;
 
-    public static String DEFAULT_LOCATION_PROVIDER = "DEFAULT LOCATION";
-    public static double DEFAULT_LOCATION_LATITUDE = 50.085532;
-    public static double DEFAULT_LOCATION_LONGITUDE = 14.428449;
-
     /*Temperature is available in Fahrenheit, Celsius and Kelvin units.
 
     For temperature in Fahrenheit use units=imperial
@@ -34,6 +30,4 @@ public class Constants {
     public static final String PRECIPITATION = " mm";
     public static final String PRESSURE = " hPa";
     public static final String WIND = " km/h";
-
-
 }

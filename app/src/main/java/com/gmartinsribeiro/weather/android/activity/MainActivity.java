@@ -20,6 +20,9 @@ import com.gmartinsribeiro.weather.android.R;
 import com.gmartinsribeiro.weather.android.fragment.ForecastFragment;
 import com.gmartinsribeiro.weather.android.fragment.NavigationDrawerFragment;
 import com.gmartinsribeiro.weather.android.fragment.TodayFragment;
+import com.gmartinsribeiro.weather.android.utility.Connectivity;
+import com.gmartinsribeiro.weather.android.utility.DialogUtils;
+import com.gmartinsribeiro.weather.android.utility.Locator;
 
 /**
  * Created by Gonçalo Martins Ribeiro on 08-07-2015.
@@ -63,6 +66,16 @@ public class MainActivity extends AppCompatActivity
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             window.setStatusBarColor(getResources().getColor(R.color.blue700));
 
+        }
+
+        //Check connection and get location
+        if (!Connectivity.isConnected(this)) {
+            DialogUtils.createNetErrorDialog(this);
+        } else {
+            Locator l = new Locator(this);
+            if (!l.hasGpsEnabled()) {
+                DialogUtils.createGpsErrorDialog(this);
+            }
         }
     }
 

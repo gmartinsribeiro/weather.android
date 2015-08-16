@@ -1,6 +1,7 @@
 package com.gmartinsribeiro.weather.android.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import com.gmartinsribeiro.weather.android.domain.Temperature;
 import com.gmartinsribeiro.weather.android.entity.WeatherItem;
 import com.gmartinsribeiro.weather.android.utility.Connectivity;
 import com.gmartinsribeiro.weather.android.utility.Constants;
+import com.gmartinsribeiro.weather.android.utility.DialogUtils;
 import com.gmartinsribeiro.weather.android.utility.Locator;
 import com.gmartinsribeiro.weather.android.utility.SharedPreferencesUtils;
 import com.gmartinsribeiro.weather.android.utility.WeatherUtils;
@@ -96,14 +98,6 @@ public class TodayFragment extends Fragment implements Locator.Listener{
         wind = (TextView) v.findViewById(R.id.windValue);
         direction = (TextView) v.findViewById(R.id.directionValue);
 
-        //Check connection and get location
-        if(Connectivity.isConnected(getActivity())){
-            getCurrentLocation();
-        }else{
-            //TODO
-            //Show error
-        }
-
         return v;
     }
 
@@ -145,13 +139,12 @@ public class TodayFragment extends Fragment implements Locator.Listener{
         controller.getTodayWeather(location.getLatitude(), location.getLongitude(), units, new Callback<WeatherItem>() {
             @Override
             public void success(WeatherItem weather, Response response) {
-
                 populateView(weather);
             }
 
             @Override
             public void failure(RetrofitError error) {
-
+                Log.e(TAG, error.getMessage());
             }
         });
 
@@ -214,12 +207,9 @@ public class TodayFragment extends Fragment implements Locator.Listener{
     @Override
     public void onLocationNotFound() {
         Log.e(TAG, "No location found.");
-        //Show error or default location (Prague?)
-        Location l = new Location(Constants.DEFAULT_LOCATION_PROVIDER);
-        l.setLatitude(Constants.DEFAULT_LOCATION_LATITUDE);
-        l.setLongitude(Constants.DEFAULT_LOCATION_LONGITUDE);
-        getTodayWeather(l);
-        Picasso.with(getActivity()).load(Constants.API_GMAPS_STREETVIEW.replace("{latitude}", String.valueOf(Constants.DEFAULT_LOCATION_LATITUDE)).replace("{longitude}", String.valueOf(Constants.DEFAULT_LOCATION_LONGITUDE))).into(backgroundPicture);
+        //Show error or default location
+        //TODO Show last known location
+
     }
 
     /**
@@ -237,4 +227,19 @@ public class TodayFragment extends Fragment implements Locator.Listener{
         public void onFragmentInteraction(String uri);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        //Check connection and get location
+        if (!Connectivity.isConnected(getActivity())) {
+            DialogUtils.createNetErrorDialog(getActivity());
+        } else {
+            Locator l = new Locator(getActivity());
+            if (!l.hasGpsEnabled()) {
+                DialogUtils.createGpsErrorDialog(getActivity());
+            } else {
+                getCurrentLocation();
+            }
+        }
+    }
 }
